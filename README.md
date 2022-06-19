@@ -1,2 +1,8 @@
-# tech-challenge
-Avyact's solution to Keyrock's tech challenge
+To run the server 
+
+cargo run --bin market-server
+
+
+To run the client
+
+cargo run --bin market-client
