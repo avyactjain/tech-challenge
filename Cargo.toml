@@ -12,12 +12,20 @@ path = "src/server.rs"
 name = "market-client"
 path = "src/client.rs"
 
+[lib]
+name = "config"
+path = "src/config.rs"
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 tonic = "0.7"
 prost = "0.10"
 tokio = { version = "1.0", features = ["macros", "rt-multi-thread"] }
+tokio-stream = "0.1"
+serde = {version = "1.0.138",features = ["derive"] }
+serde_json = "1.0.82"
+
 
 [build-dependencies]
 tonic-build = "0.7"

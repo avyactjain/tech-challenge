@@ -4,6 +4,7 @@ package markets;
 
 service Market {
     rpc getMarketData (MarketDataRequest) returns (MarketDataResponse);
+    rpc marketData (MarketDataRequest) returns (stream MarketDataResponse);
 }
 
 message MarketDataRequest {
@@ -13,3 +14,5 @@ message MarketDataRequest {
 message MarketDataResponse {
     float price = 1;
 }
+
+
