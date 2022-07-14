@@ -8,6 +8,10 @@ use markets::{MarketDataRequest, MarketDataResponse};
 
 use config::Config;
 
+use crate::exchanges::binance::Binance;
+
+mod exchanges;
+
 pub mod markets {
     tonic::include_proto!("markets");
 }
@@ -40,9 +44,12 @@ impl Market for MarketService {
 
         let (tx, rx) = mpsc::channel(4);
 
+        let mut binance_socket = Binance::get_orderbook_websocket();
+
         tokio::spawn(async move {
             // place websocket streaming here.
-            for _i in 1..10 {
+
+            loop {
                 tx.send(Ok(MarketDataResponse { price: 1.024 }))
                     .await
                     .unwrap();

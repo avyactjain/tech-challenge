@@ -1,9 +1,7 @@
-use std::{
-    fs::{self},
-};
+use std::fs::{self};
 
 //imports
-use serde::{Deserialize, Serialize}; 
+use serde::{Deserialize, Serialize};
 
 //derive the traits for your struct
 #[derive(Debug, Deserialize, Serialize)]
@@ -13,7 +11,7 @@ pub struct Config {
 
 impl Config {
     pub fn load_config(file_path: &str) -> Config {
-        //This function loads the config into the app. Can Panic here.
+        //This function loads the config from the config.json file into the app. Can Panic here. The app will not start if the config is not loaded
 
         let file = fs::File::open(file_path).unwrap_or_else(|error| {
             panic!("Error while opening the config file. Error {}", error);
