@@ -20,12 +20,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         println!("market_data = {:?}", data);
     }
 
-    // loop {
-    //     let request = tonic::Request::new(MarketDataRequest {
-    //         market: String::from_str("ethbtc").unwrap(),
-    //     });
-    //     let response = client.get_market_data(request).await?;
-    //     println!("RESPONSE={:?}", response);
-    // }
+    loop {
+        // let request = tonic::Request::new(MarketDataRequest {
+        //     market: String::from_str("ethbtc").unwrap(),
+        // });
+        // let response = client.get_market_data(request).await?;
+        // println!("RESPONSE={:?}", response);
+
+        println!("{:?}",stream.message().await?);
+    }
     Ok(())
 }
