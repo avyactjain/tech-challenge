@@ -3,7 +3,6 @@ package markets;
 
 
 service Market {
-    rpc getMarketData (MarketDataRequest) returns (MarketDataResponse);
     rpc marketData (MarketDataRequest) returns (stream MarketDataResponse);
 }
 
