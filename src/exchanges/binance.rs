@@ -4,7 +4,7 @@ use crate::{
 };
 
 use crate::MarketDataResponse;
-use tungstenite::{connect};
+use tungstenite::connect;
 use url::Url;
 
 pub struct Binance {
@@ -44,7 +44,8 @@ impl Binance {
                         panic!("Error while parsing orderbook as JSON. Error {}", error);
                     });
 
-                let orderbook = OrderbookRaw::convert_raw_orderbook_to_orderbook(_orderbook);
+                let orderbook =
+                    OrderbookRaw::convert_raw_orderbook_to_orderbook(_orderbook, "binance");
                 println!("order book is --> {:?}", orderbook);
 
                 let mut _asks: Vec<Level> = Vec::new();

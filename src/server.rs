@@ -4,11 +4,13 @@ use markets::market_server::{Market, MarketServer};
 use tokio::sync::mpsc;
 use tokio_stream::wrappers::ReceiverStream;
 
-use markets::{Level, MarketDataRequest, MarketDataResponse};
+use markets::{MarketDataRequest, MarketDataResponse};
 
 use config::Config;
 
 use crate::exchanges::binance::Binance;
+use crate::exchanges::bitstamp::Bitstamp;
+
 mod exchanges;
 
 // use crate::orderbook::{orderbook_raw};
@@ -34,7 +36,9 @@ impl Market for MarketService {
         let (tx, rx) = mpsc::channel(4);
         //use the same transmitter for both exchanges.
 
-        Binance::init_orderbook_websocket(tx); //this will spawn a new thread, and start sending to binance_rx
+        let tx_clone = tx.clone(); // sent to bitstamp
+        // Binance::init_orderbook_websocket(tx); //this will spawn a new thread, and start sending to binance_rx
+        Bitstamp::init_orderbook_websocket(tx_clone);
 
         // rx will receive whatever tx will send.
         Ok(Response::new(ReceiverStream::new(rx)))

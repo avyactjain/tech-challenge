@@ -13,7 +13,7 @@ pub struct OrderbookRaw {
 }
 
 impl OrderbookRaw {
-    pub fn convert_raw_orderbook_to_orderbook(raw_orderbook: OrderbookRaw) -> Orderbook {
+    pub fn convert_raw_orderbook_to_orderbook(raw_orderbook: OrderbookRaw, exchange : &str) -> Orderbook {
         // add error handling here
         let mut bids: Vec<LocalLevel> = Vec::new();
         let mut asks: Vec<LocalLevel> = Vec::new();
@@ -22,7 +22,7 @@ impl OrderbookRaw {
             let temp_level = LocalLevel {
                 price: bid.get(0).unwrap().parse().unwrap(),
                 amount: bid.get(1).unwrap().parse().unwrap(),
-                exchange: "binance".to_string(),
+                exchange: exchange.to_string(),
             };
 
             bids.push(temp_level);
