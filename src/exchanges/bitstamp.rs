@@ -62,7 +62,6 @@ impl Bitstamp {
                 loop {
                     println!("inside the loop");
                     let message_new = socket.read_message().expect("Error reading message");
-                    // the first message will be subscription succeed! to bitstamp. How to check?
 
                     let _orderbook: BitstampOrderbook =
                         serde_json::from_str(&message_new.to_string()).unwrap_or_else(|error| {
@@ -82,6 +81,10 @@ pub struct BitstampOrderbook {
     pub data: BitstampData,
     pub channel: String,
     pub event: String,
+}
+
+impl Bitstamp {
+    
 }
 
 #[derive(Debug, Deserialize, Serialize)]
