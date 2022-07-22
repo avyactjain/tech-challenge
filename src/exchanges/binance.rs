@@ -24,6 +24,7 @@ impl Binance {
     pub fn init_orderbook_websocket(
         tx: tokio::sync::mpsc::Sender<Result<MarketDataResponse, tonic::Status>>,
     ) {
+        println!("Binance Websocket initialized");
         //add error handling in this function
         let mut socket = Binance::get_orderbook_websocket();
         tokio::spawn(async move {
@@ -46,7 +47,7 @@ impl Binance {
 
                 let orderbook =
                     OrderbookRaw::convert_raw_orderbook_to_orderbook(_orderbook, "binance");
-                println!("order book is --> {:?}", orderbook);
+                // println!("order book is --> {:?}", orderbook);
 
                 let mut _asks: Vec<Level> = Vec::new();
                 let mut _bids: Vec<Level> = Vec::new();

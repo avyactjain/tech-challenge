@@ -8,7 +8,7 @@ pub mod markets {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let mut client = MarketClient::connect("http://[::1]:50051").await?;
+    let mut client = MarketClient::connect("http://[::1]:50050").await?;
 
     let request = tonic::Request::new(MarketDataRequest {
         market: String::from_str("ethbtc").unwrap(),

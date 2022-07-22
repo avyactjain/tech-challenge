@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use crate::{
     markets::Level,
-    orderbook::{local_level::LocalLevel, orderbook_raw::OrderbookRaw},
+    orderbook::{local_level::LocalLevel, orderbook_raw::OrderbookRaw, Orderbook},
 };
 
 use crate::MarketDataResponse;
@@ -38,6 +38,8 @@ impl Bitstamp {
     pub fn init_orderbook_websocket(
         tx: tokio::sync::mpsc::Sender<Result<MarketDataResponse, tonic::Status>>,
     ) {
+        println!("bitstamp Websocket initialized");
+
         //add error handling in this function
         let mut socket = Bitstamp::get_orderbook_websocket();
 
@@ -53,22 +55,54 @@ impl Bitstamp {
                 tungstenite::Message::Frame(_) => todo!(),
             };
 
-            println!("message from bitstamp {:?}", message);
+            // println!("message from bitstamp {:?}", message);
 
             let response: BitstampConnectionMessage =
                 serde_json::from_str(&message.to_string()).unwrap();
 
-            if (response.event == "bts:subscription_succeeded") {
+            if response.event == "bts:subscription_succeeded" {
                 loop {
-                    println!("inside the loop");
-                    let message_new = socket.read_message().expect("Error reading message");
+                    let message_new = socket
+                        .read_message()
+                        .expect("Error reading message")
+                        .to_string();
 
-                    let _orderbook: BitstampOrderbook =
-                        serde_json::from_str(&message_new.to_string()).unwrap_or_else(|error| {
-                            panic!("Error while parsing orderbook as JSON. Error {}", error);
-                        });
+                    if (message_new.len() != 0) {
+                        let raw_orderbook: BitstampOrderbook = serde_json::from_str(&message_new)
+                            .unwrap_or_else(|error| {
+                                panic!("Error while parsing orderbook as JSON. Error {}", error);
+                            });
+                        // println!("------------------------------------");
 
-                    println!("message from bitstamp {:?}", _orderbook);
+                        // println!("Raw OB --> {:?}", raw_orderbook);
+
+                        let orderbook: Orderbook =
+                            BitstampOrderbook::convert_bitstamp_orderbook_to_orderbook(
+                                raw_orderbook,
+                            );
+
+                        // println!("message from bitstamp {:?}", orderook);
+
+                        let mut _asks: Vec<Level> = Vec::new();
+                        let mut _bids: Vec<Level> = Vec::new();
+
+                        for bid in orderbook.bids {
+                            let temp_level = LocalLevel::conver_local_level_to_proto_level(bid);
+                            _bids.push(temp_level);
+                        }
+
+                        for ask in orderbook.asks {
+                            let temp_level = LocalLevel::conver_local_level_to_proto_level(ask);
+                            _asks.push(temp_level);
+                        }
+
+                        tx.send(Ok(MarketDataResponse {
+                            bids: _bids,
+                            asks: _asks,
+                        }))
+                        .await
+                        .unwrap();
+                    }
                 }
             }
         });
@@ -83,8 +117,37 @@ pub struct BitstampOrderbook {
     pub event: String,
 }
 
-impl Bitstamp {
-    
+impl BitstampOrderbook {
+    pub fn convert_bitstamp_orderbook_to_orderbook(bitsamp_orderbook: Self) -> Orderbook {
+        let mut bids: Vec<LocalLevel> = Vec::new();
+        let mut asks: Vec<LocalLevel> = Vec::new();
+
+        for bid in bitsamp_orderbook.data.bids {
+            let temp_level = LocalLevel {
+                amount: bid.get(0).unwrap().parse().unwrap(),
+                price: bid.get(1).unwrap().parse().unwrap(),
+                exchange: "bitstamp".to_string(),
+            };
+
+            bids.push(temp_level);
+        }
+
+        for ask in bitsamp_orderbook.data.asks {
+            let temp_level = LocalLevel {
+                amount: ask.get(0).unwrap().parse().unwrap(),
+                price: ask.get(1).unwrap().parse().unwrap(),
+                exchange: "bitstamp".to_string(),
+            };
+
+            asks.push(temp_level);
+        }
+
+        Orderbook {
+            bids: bids,
+            asks: asks,
+            last_update_id: bitsamp_orderbook.data.timestamp.parse().unwrap(),
+        }
+    }
 }
 
 #[derive(Debug, Deserialize, Serialize)]

@@ -33,11 +33,11 @@ impl Market for MarketService {
     ) -> Result<Response<Self::marketDataStream>, Status> {
         // println!("ListFeatures = {:?}", request);
 
-        let (tx, rx) = mpsc::channel(4);
+        let (tx, rx) = mpsc::channel(1);
         //use the same transmitter for both exchanges.
 
         let tx_clone = tx.clone(); // sent to bitstamp
-        // Binance::init_orderbook_websocket(tx); //this will spawn a new thread, and start sending to binance_rx
+        Binance::init_orderbook_websocket(tx); //this will spawn a new thread, and start sending to binance_rx
         Bitstamp::init_orderbook_websocket(tx_clone);
 
         // rx will receive whatever tx will send.
@@ -56,7 +56,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // println!("{}",config.market);
 
-    let addr = "[::1]:50051".parse()?;
+    let addr = "[::1]:50050".parse()?;
     let market_service = MarketService::default();
     println!("market-server active on {:?}", addr);
 
