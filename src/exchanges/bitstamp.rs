@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use crate::{
     markets::Level,
-    orderbook::{local_level::LocalLevel, orderbook_raw::OrderbookRaw, Orderbook},
+    orderbook::{local_level::LocalLevel, Orderbook},
 };
 
 use crate::MarketDataResponse;
@@ -124,8 +124,16 @@ impl BitstampOrderbook {
 
         for bid in bitsamp_orderbook.data.bids {
             let temp_level = LocalLevel {
-                amount: bid.get(0).unwrap().parse().unwrap(),
-                price: bid.get(1).unwrap().parse().unwrap(),
+                amount: bid
+                    .get(0)
+                    .unwrap_or(&"0.0".to_string())
+                    .parse()
+                    .unwrap_or(0.0),
+                price: bid
+                    .get(1)
+                    .unwrap_or(&"0.0".to_string())
+                    .parse()
+                    .unwrap_or(0.0),
                 exchange: "bitstamp".to_string(),
             };
 

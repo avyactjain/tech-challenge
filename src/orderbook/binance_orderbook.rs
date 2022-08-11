@@ -5,15 +5,18 @@ use super::{local_level::LocalLevel, Orderbook};
 //derive the traits for your struct
 #[derive(Debug, Deserialize, Serialize)]
 
-pub struct OrderbookRaw {
+pub struct BinanceOrderbook {
     pub bids: Vec<Vec<String>>,
     pub asks: Vec<Vec<String>>,
     #[serde(rename = "lastUpdateId")]
     pub last_update_id: u64,
 }
 
-impl OrderbookRaw {
-    pub fn convert_raw_orderbook_to_orderbook(raw_orderbook: OrderbookRaw, exchange : &str) -> Orderbook {
+impl BinanceOrderbook {
+    pub fn convert_raw_orderbook_to_orderbook(
+        raw_orderbook: BinanceOrderbook,
+        exchange: &str,
+    ) -> Orderbook {
         // add error handling here
         let mut bids: Vec<LocalLevel> = Vec::new();
         let mut asks: Vec<LocalLevel> = Vec::new();

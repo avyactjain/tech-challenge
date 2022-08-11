@@ -1,3 +1,4 @@
+use OrderbookAggregator::OrderbookAggregator::aggregate_orderbooks_from_recievers;
 use tonic::{transport::Server, Request, Response, Status};
 
 use markets::market_server::{Market, MarketServer};
@@ -12,6 +13,7 @@ use crate::exchanges::binance::Binance;
 use crate::exchanges::bitstamp::Bitstamp;
 
 mod exchanges;
+mod OrderbookAggregator;
 
 // use crate::orderbook::{orderbook_raw};
 mod orderbook;
@@ -33,15 +35,23 @@ impl Market for MarketService {
     ) -> Result<Response<Self::marketDataStream>, Status> {
         // println!("ListFeatures = {:?}", request);
 
-        let (tx, rx) = mpsc::channel(1);
-        //use the same transmitter for both exchanges.
+        let (tx_binance, rx_binance) = mpsc::channel(1);
+        // let (tx_bitstamp, rx_bitstamp) = mpsc::channel(2);
 
-        let tx_clone = tx.clone(); // sent to bitstamp
-        Binance::init_orderbook_websocket(tx); //this will spawn a new thread, and start sending to binance_rx
-        Bitstamp::init_orderbook_websocket(tx_clone);
 
+        //pass in both the receivers and let it do it's job
+        aggregate_orderbooks_from_recievers();
+
+
+
+        Binance::init_orderbook_websocket(tx_binance); //this will spawn a new thread, and start sending orderbooks from binance to rx
+                                                       // Bitstamp::init_orderbook_websocket(tx_clone); //this will spawn a new thread and start sending orderbooks from bitstamp to rx
+
+        // Bitstamp::init_orderbook_websocket(tx_bitstamp);
         // rx will receive whatever tx will send.
-        Ok(Response::new(ReceiverStream::new(rx)))
+
+        //this will be changed to receiver for aggregator
+        Ok(Response::new(ReceiverStream::new(rx_binance)))
     }
 }
 
